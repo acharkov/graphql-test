@@ -10,7 +10,6 @@ module.exports = {
         const duration = Date.now() - start
         console.log('executed query', { text, duration, rows: res.rowCount })
         return res;
-      }) 
-      .catch(e => console.error(e.stack));
+      })
   }
 }
