@@ -1,6 +1,6 @@
 const { Pool } = require('pg')
 const createPostsQuery = `create table posts(
-    id varchar(20), title varchar(20), text varchar(200), author_id varchar(20));`
+    id varchar(20), title varchar(20), text varchar(200), authorId varchar(20));`
 const createAuthorsQuery = `create table authors(
     id varchar(20), name varchar(60));`
 

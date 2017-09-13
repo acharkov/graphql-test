@@ -5,12 +5,12 @@ const pool = new Pool()
 module.exports = {
   query: (text, params) => {
     const start = Date.now()
-
     return pool.query(text, params)
-    .then(res => {
-      console.log(res.rows)
-      console.log('executed query', { text, rows: res.rowCount });
-    })
-    .catch(e => console.error(e.stack));
+      .then(res => {
+        const duration = Date.now() - start
+        console.log('executed query', { text, duration, rows: res.rowCount })
+        return res;
+      }) 
+      .catch(e => console.error(e.stack));
   }
 }
