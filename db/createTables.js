@@ -5,7 +5,8 @@ const createPostsQuery = `CREATE TABLE posts(
   id varchar(20) PRIMARY KEY,
   title varchar(20),
   text varchar(500),
-  authorId varchar(20));`
+  author_id varchar(20),
+  date date);`
 const createAuthorsQuery = `CREATE TABLE authors(
   id varchar(20) PRIMARY KEY,
   name varchar(60));`
