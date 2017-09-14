@@ -45,11 +45,14 @@ let root = {
 
     return db.query(postQuery)
       .then(res => {
+        if (res.rowCount === 0) {
+          throw new Error(`Post with id=${id} is not found`);
+        }
         return res.rows[0];
       })
       .catch(e => {
         console.error(e.stack);
-        throw new Error("Could not get posts from database");
+        throw e;
       })
   },
   // returns all posts to client
@@ -65,7 +68,7 @@ let root = {
       })
       .catch(e => {
         console.error(e.stack)
-        throw new Error("Could not get posts from database");
+        throw e;
       })
   },
   // returns "limit" number of posts starting from "offset"
@@ -81,8 +84,8 @@ let root = {
         return res.rows;
       })
       .catch(e => {
-        console.error(e.stack)
-        throw new Error("Could not get posts from database");
+        console.error(e.stack);
+        throw e;
       })
   },
   // create new post using specified input parameters
@@ -97,7 +100,7 @@ let root = {
       })
       .catch(e => {
         console.error(e.stack);
-        throw new Error("Could not get insert posts to database");
+        throw e;
       })
   },
   // update post with specified id using input values
@@ -112,7 +115,7 @@ let root = {
       })
       .catch(e => {
         console.error(e.stack);
-        throw new Error("Could not get insert posts to database");
+        throw e;
       })
   },
 };

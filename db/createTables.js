@@ -4,7 +4,7 @@ const { Pool } = require('pg')
 const createPostsQuery = `CREATE TABLE posts(
   id varchar(20) PRIMARY KEY,
   title varchar(20),
-  text varchar(200),
+  text varchar(500),
   authorId varchar(20));`
 const createAuthorsQuery = `CREATE TABLE authors(
   id varchar(20) PRIMARY KEY,
