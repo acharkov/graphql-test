@@ -1,6 +1,7 @@
 let { Pool } = require('pg')
 let Post = require('../post.js');
 let pool = new Pool();
+let _ = require('lodash');
 
 let query = function (text, params) {
   const start = Date.now()
@@ -20,14 +21,7 @@ let convertDbResultToPost = function (dbElement) {
 }
 
 let convertDbResultToPostArray = function (dbArray) {
-  let posts = new Array();
-
-  for (let i = 0; i < dbArray.length; ++i) {
-    let post = convertDbResultToPost(dbArray[i])
-    posts.push(post)
-  }
-  
-  return posts;
+  return _.map(dbArray, convertDbResultToPost);
 }
 
 module.exports = { 
