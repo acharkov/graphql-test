@@ -1,4 +1,4 @@
-const { buildSchema } = require('graphql')
+const { buildSchema } = require('graphql');
 const db = require('./db');
 const crypto = require('crypto');
 
