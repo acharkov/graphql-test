@@ -1,31 +1,36 @@
-let { Pool } = require('pg')
-let Post = require('../post.js');
-let pool = new Pool();
-let _ = require('lodash');
+const { Pool } = require('pg');
+const Post = require('../post.js');
 
-let query = function (text, params) {
-  const start = Date.now()
+const pool = new Pool();
+
+const query = function query(text, params) {
+  const start = Date.now();
+
   return pool.query(text, params)
-    .then(res => {
-      const duration = Date.now() - start
-      console.log('executed query', { text, duration, rows: res.rowCount })
+    .then((res) => {
+      const duration = Date.now() - start;
+
+      console.log('executed query', { text, duration, rows: res.rowCount });
       return res;
-    })
-}
+    });
+};
 
-let convertDbResultToPost = function (dbElement) {
-  let post = new Post(dbElement.id, dbElement.date, dbElement.title, 
-                      dbElement.text, dbElement.author_id, dbElement.name);
-    
+const convertDbResultToPost = function convertDbResultToPost(dbElement) {
+  const post = new Post(
+    dbElement.id, dbElement.date,
+    dbElement.title, dbElement.text,
+    dbElement.author_id, dbElement.name,
+  );
+
   return post;
-}
+};
 
-let convertDbResultToPostArray = function (dbArray) {
-  return _.map(dbArray, convertDbResultToPost);
-}
+const convertDbResultToPostArray = function convertDbResultToPostArray(dbArray) {
+  return dbArray.map(convertDbResultToPost);
+};
 
-module.exports = { 
-  query: query,
-  convertDbResultToPost: convertDbResultToPost,
-  convertDbResultToPostArray: convertDbResultToPostArray
-}
+module.exports = {
+  query,
+  convertDbResultToPost,
+  convertDbResultToPostArray,
+};

@@ -1,39 +1,44 @@
-// This script to be used at the very beginnig to create needed tables
-// to simplify the testing
-const { Pool } = require('pg')
+/* This script to be used at the very beginnig to create needed tables
+   to simplify the testing */
+const { Pool } = require('pg');
+
 const createPostsQuery = `CREATE TABLE posts(
   id varchar(20) PRIMARY KEY,
   title varchar(20),
   text varchar(500),
   author_id varchar(20),
-  date date);`
+  date date);`;
 const createAuthorsQuery = `CREATE TABLE authors(
   id varchar(20) PRIMARY KEY,
-  name varchar(60));`
+  name varchar(60));`;
 
-const pool = new Pool()
+const pool = new Pool();
 
 pool.query(createPostsQuery)
-  .then(res => {
-    console.log('posts table succesfully created')
+  .then(() => {
+    console.log('posts table succesfully created');
   })
-  .catch(e => {
-    console.error(e.stack)
-  })
+  .catch((err) => {
+    console.error(err.stack);
+  });
 
 pool.query(createAuthorsQuery)
-  .then(res => {
+  .then(() => {
     console.log('authors table succesfully created');
 
-    const insertQuery = `insert into authors(id, name) values('1', 'Kony'), ('2', 'Tony'), ('3', 'Pony');`;
+    const insertQuery = `INSERT INTO 
+    authors(id, name) 
+    VALUES
+    ('1', 'Kony'), ('2', 'Tony'), ('3', 'Pony');`;
+
     pool.query(insertQuery)
-      .then(res => {
+      .then(() => {
         console.log('authors succesfully inserted');
       })
-      .catch(e => {
-        console.error(e.stack);
-      })
+      .catch((err) => {
+        console.error(err.stack);
+      });
   })
-  .catch(e => {
-    console.error(e.stack)
-  })
+  .catch((err) => {
+    console.error(err.stack);
+  });

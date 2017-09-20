@@ -1,12 +1,11 @@
-'use strict';
-let express = require('express');
-let graphqlHTTP = require('express-graphql');
-let { schema, root} = require('./schema.js')
+const express = require('express');
+const graphqlHTTP = require('express-graphql');
+const { schema, root } = require('./schema.js');
 
-let app = express();
+const app = express();
 
 app.use('/graphql', graphqlHTTP({
-  schema: schema,
+  schema,
   rootValue: root,
   graphiql: true,
 }));
