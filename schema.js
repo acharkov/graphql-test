@@ -90,6 +90,10 @@ const root = {
   createPost({ input }) {
     // create a random id for our "database".
     const id = crypto.randomBytes(10).toString('hex');
+    let query = {
+      text: "",
+      values:[]
+    }
     const queryText = `INSERT INTO 
     posts(id, title, text, author_id, date) 
     VALUES($1, $2, $3, $4, $5) RETURNING *;`;
@@ -105,10 +109,10 @@ const root = {
   // update post with specified id using input values
   updatePost({ id, input }) {
     const updateQuery = `UPDATE posts 
-      SET title='${input.title}', text='${input.text}' 
-      WHERE posts.id='${id}' RETURNING *`;
+      SET title=$1, text=$2 
+      WHERE posts.id=$3 RETURNING *`;
 
-    return db.query(updateQuery)
+    return db.query(updateQuery, [input.title, input.text, id])
       .then(res => db.convertDbResultToPost(res.rows[0]))
       .catch((err) => {
         console.error(err.stack);

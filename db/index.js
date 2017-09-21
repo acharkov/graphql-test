@@ -19,7 +19,7 @@ const convertDbResultToPost = function convertDbResultToPost(dbElement) {
   const post = new Post(
     dbElement.id, dbElement.date,
     dbElement.title, dbElement.text,
-    dbElement.author_id, dbElement.name,
+    dbElement.author_id, dbElement.name
   );
 
   return post;
