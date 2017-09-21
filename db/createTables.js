@@ -14,31 +14,30 @@ const createAuthorsQuery = `CREATE TABLE authors(
 
 const pool = new Pool();
 
-pool.query(createPostsQuery)
-  .then(() => {
+async function createPostsTable() {
+  try {
+    await pool.query(createPostsQuery);
     console.log('posts table succesfully created');
-  })
-  .catch((err) => {
+  } catch (err) {
     console.error(err.stack);
-  });
+  }
+}
 
-pool.query(createAuthorsQuery)
-  .then(() => {
+async function createAuthors() {
+  try {
+    await pool.query(createAuthorsQuery);
     console.log('authors table succesfully created');
 
     const insertQuery = `INSERT INTO 
     authors(id, name) 
     VALUES
     ('1', 'Kony'), ('2', 'Tony'), ('3', 'Pony');`;
-
-    pool.query(insertQuery)
-      .then(() => {
-        console.log('authors succesfully inserted');
-      })
-      .catch((err) => {
-        console.error(err.stack);
-      });
-  })
-  .catch((err) => {
+    await pool.query(insertQuery);
+    console.log('authors succesfully inserted');
+  } catch (err) {
     console.error(err.stack);
-  });
+  }
+}
+
+createPostsTable();
+createAuthors();
