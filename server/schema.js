@@ -22,7 +22,7 @@ type Post {
 
 type Query {
   getAllPosts: [Post]
-  getPaginatedPosts(limit: Int, offset: Int): [Post]
+  getPaginatedPosts(numOfPosts: Int, startFrom: Int): [Post]
   getPost(id: ID!): Post
 }
 
@@ -76,17 +76,16 @@ const root = {
       throw err;
     }
   },
-  // returns "limit" number of posts starting from "offset"
-  async getPaginatedPosts({ limit, offset }) {
+  // returns "numOfPosts" number of posts starting from "startFrom"
+  async getPaginatedPosts({ numOfPosts, startFrom }) {
     const postsQuery = `SELECT 
       posts.id, posts.title, posts.text, posts.date, posts.author_id, authors.name 
       FROM posts 
       INNER JOIN authors ON authors.id=posts.author_id 
-      LIMIT ${limit} OFFSET ${offset} 
-      ORDER BY posts.date;`;
+      LIMIT $1 OFFSET $2`;
 
     try {
-      const dbRes = await query(postsQuery);
+      const dbRes = await query(postsQuery, [numOfPosts, startFrom]);
       return dbRes.rows.map(getPostFromDbResult);
     } catch (err) {
       console.error(err.stack);
