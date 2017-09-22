@@ -1,6 +1,6 @@
-const express = require('express');
-const graphqlHTTP = require('express-graphql');
-const { schema, root } = require('./schema.js');
+import express from 'express';
+import graphqlHTTP from 'express-graphql';
+import { schema, root } from './schema';
 
 const app = express();
 

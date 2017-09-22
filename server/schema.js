@@ -1,7 +1,7 @@
-const { buildSchema } = require('graphql');
-const db = require('./db');
-const crypto = require('crypto');
+import { buildSchema } from 'graphql';
+import crypto from 'crypto';
 
+const db = require('./db');
 // Construct a schema, using GraphQL schema language
 const schema = buildSchema(`
 input PostInput {
@@ -122,4 +122,4 @@ const root = {
   },
 };
 
-module.exports = { schema, root };
+export { schema, root };

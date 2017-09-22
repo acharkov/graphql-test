@@ -4,7 +4,9 @@
   "description": "test app with graphql",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "clean": "rm -rf dist",
+    "dev": "npm run clean && mkdir dist && ./node_modules/.bin/babel server -d dist && node dist/app.js"
   },
   "author": "Alexander Charkov",
   "license": "ISC",
@@ -13,11 +15,17 @@
     "express-graphql": "^0.6.11",
     "graphql": "^0.11.3",
     "lodash": "^4.17.4",
-    "pg": "^7.3.0"
+    "pg": "^7.3.0",
+    "babel-cli": "^6.26.0",
+    "babel-plugin-syntax-async-functions": "^6.13.0",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-env": "^1.6.0"
   },
   "devDependencies": {
-    "babel-core": "^6.26.0",
+    "babel-cli": "^6.26.0",
     "babel-plugin-syntax-async-functions": "^6.13.0",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-env": "^1.6.0",
     "eslint": "^4.7.1",
     "eslint-config-airbnb-base": "^12.0.0",
     "eslint-config-google": "^0.9.1",

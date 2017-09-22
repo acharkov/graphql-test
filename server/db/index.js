@@ -1,5 +1,6 @@
-const { Pool } = require('pg');
-const Post = require('../post.js');
+import 'babel-polyfill';
+import { Pool } from 'pg';
+import Post from '../post';
 
 const pool = new Pool();
 

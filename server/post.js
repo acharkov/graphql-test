@@ -1,4 +1,4 @@
-module.exports = class Post {
+export default class Post {
   constructor(id, date, title, text, authorId, authorName) {
     this.id = id;
     this.title = title;
@@ -7,4 +7,4 @@ module.exports = class Post {
     this.name = authorName;
     this.date = date;
   }
-};
+}
