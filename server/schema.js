@@ -1,7 +1,8 @@
 import { buildSchema } from 'graphql';
 import crypto from 'crypto';
+import query from './db';
+import getPostFromDbResult from './post';
 
-const db = require('./db');
 // Construct a schema, using GraphQL schema language
 const schema = buildSchema(`
 input PostInput {
@@ -36,6 +37,10 @@ In case if there is an error we just throw the error to GraphQl.
 No status codes are used in GraphQl */
 const root = {
   async getPost({ id }) {
+    if (id == null || id == undefined) {
+      throw new Error(`Invalid id provided`);
+    }
+
     const postQuery = `SELECT 
     posts.id, posts.title, posts.text, posts.date, posts.author_id, authors.name 
     FROM posts 
@@ -44,11 +49,12 @@ const root = {
     ORDER BY posts.date;`;
 
     try {
-      const dbRes = await db.query(postQuery);
+      const dbRes = await query(postQuery);
       if (dbRes.rowCount === 0) {
         throw new Error(`Post with id=${id} is not found`);
       }
-      return db.convertDbResultToPost(dbRes.rows[0]);
+
+      return getPostFromDbResult(dbRes.rows[0]);
     } catch (err) {
       console.error(err.stack);
       throw err;
@@ -63,8 +69,8 @@ const root = {
       ORDER BY posts.date;`;
 
     try {
-      const dbRes = await db.query(allPostsQuery);
-      return db.convertDbResultToPostArray(dbRes.rows);
+      const dbRes = await query(allPostsQuery);
+      return dbRes.rows.map(getPostFromDbResult);
     } catch (err) {
       console.error(err.stack);
       throw err;
@@ -80,8 +86,8 @@ const root = {
       ORDER BY posts.date;`;
 
     try {
-      const dbRes = await db.query(postsQuery);
-      return db.convertDbResultToPostArray(dbRes.rows);
+      const dbRes = await query(postsQuery);
+      return dbRes.rows.map(getPostFromDbResult);
     } catch (err) {
       console.error(err.stack);
       throw err;
@@ -96,8 +102,8 @@ const root = {
     VALUES($1, $2, $3, $4, $5) RETURNING *;`;
     const now = new Date();
     try {
-      const result = await db.query(queryText, [id, input.title, input.text, input.authorId, now]);
-      return db.convertDbResultToPost(result.rows[0]);
+      const dbRes = await query(queryText, [id, input.title, input.text, input.authorId, now]);
+      return getPostFromDbResult(dbRes.rows[0]);
     } catch (err) {
       console.error(err.stack);
       throw err;
@@ -110,11 +116,11 @@ const root = {
       WHERE posts.id=$3 RETURNING *`;
 
     try {
-      const dbRes = await db.query(updateQuery, [input.title, input.text, id]);
+      const dbRes = await query(updateQuery, [input.title, input.text, id]);
       if (dbRes.rowCount === 0) {
         throw new Error(`Post with id=${id} is not found`);
       }
-      return db.convertDbResultToPost(dbRes.rows[0]);
+      return getPostFromDbResult(dbRes.rows[0]);
     } catch (err) {
       console.error(err.stack);
       throw err;
