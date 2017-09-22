@@ -37,8 +37,8 @@ In case if there is an error we just throw the error to GraphQl.
 No status codes are used in GraphQl */
 const root = {
   async getPost({ id }) {
-    if (id == null || id == undefined) {
-      throw new Error(`Invalid id provided`);
+    if (id === null || id === undefined) {
+      throw new Error('Invalid id provided');
     }
 
     const postQuery = `SELECT 
