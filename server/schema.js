@@ -100,7 +100,6 @@ const root = {
     // calculate total row count
     try {
       dbRes = await query(totalCountQuery);
-      console.log(dbRes.rows[0].count)
       totalRowCount = dbRes.rows[0].count;
     } catch (err) {
       throw new Error(`Unable to calculate total row count: ${err.stack}`);
