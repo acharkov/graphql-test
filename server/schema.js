@@ -20,10 +20,22 @@ type Post {
   date: String
 }
 
+type Edge {
+  cursor: Int
+  node: Post
+}
+
+type CursorQuery {
+  totalCount: Int
+  edges: [Edge]
+  endCursor: Int
+  hasNextPage: Boolean
+}
+
 type Query {
   getAllPosts: [Post]
-  getPaginatedPosts(numOfPosts: Int, startFrom: Int): [Post]
   getPost(id: ID!): Post
+  getPostsInfinitely(numOfPosts: Int!, lastCursor: Int!): CursorQuery
 }
 
 type Mutation {
@@ -36,6 +48,72 @@ type Mutation {
 In case if there is an error we just throw the error to GraphQl.
 No status codes are used in GraphQl */
 const root = {
+  async getPostsInfinitely({ numOfPosts, lastCursor }) {
+    const edgesArray = [];
+    let dbRes;
+    let totalRowCount = 0;
+    let hasNextPage;
+    const postQuery = `SELECT 
+    posts.id, posts.cursor, posts.title, posts.text, posts.date, posts.author_id, authors.name 
+    FROM posts 
+    INNER JOIN authors ON authors.id=posts.author_id
+    WHERE posts.cursor>$1 
+    LIMIT $2`;
+    const leftCountQuery = `SELECT COUNT(*)
+    FROM posts
+    WHERE cursor>$1`;
+    const totalCountQuery = `SELECT COUNT(*)
+    FROM posts`;
+
+    if (numOfPosts === 0) {
+      throw new Error('numOfPosts should be greater than 0');
+    }
+
+    // get all edges(cursor, node)
+    try {
+      dbRes = await query(postQuery, [lastCursor, numOfPosts]);
+      for (let i = 0; i < dbRes.rowCount; i += 1) {
+        edgesArray.push({
+          cursor: dbRes.rows[i].cursor,
+          node: getPostFromDbResult(dbRes.rows[i])
+        });
+      }
+    } catch (err) {
+      throw new Error(`Unable to get edges: ${err.stack}`);
+    }
+
+    // calculate newEndCursor
+    const newEndCursor = edgesArray.length > 0 ? edgesArray[edgesArray.length - 1].cursor : NaN;
+
+    // calculate hasNextPage
+    try {
+      if (newEndCursor) {
+        dbRes = await query(leftCountQuery, [newEndCursor]);
+        hasNextPage = dbRes.rows[0].count > 0;
+      } else {
+        hasNextPage = false;
+      }
+    } catch (err) {
+      throw new Error(`Unable to calculate left posts count: ${err.stack}`);
+    }
+
+    // calculate total row count
+    try {
+      dbRes = await query(totalCountQuery);
+      console.log(dbRes.rows[0].count)
+      totalRowCount = dbRes.rows[0].count;
+    } catch (err) {
+      throw new Error(`Unable to calculate total row count: ${err.stack}`);
+    }
+
+    return {
+      totalCount: totalRowCount,
+      edges: edgesArray,
+      endCursor: newEndCursor,
+      hasNextPage
+    };
+  },
+
   async getPost({ id }) {
     if (id === null || id === undefined) {
       throw new Error('Invalid id provided');
@@ -45,11 +123,11 @@ const root = {
     posts.id, posts.title, posts.text, posts.date, posts.author_id, authors.name 
     FROM posts 
     INNER JOIN authors ON authors.id=posts.author_id
-    WHERE posts.id='${id}'
+    WHERE posts.id=$1
     ORDER BY posts.date;`;
 
     try {
-      const dbRes = await query(postQuery);
+      const dbRes = await query(postQuery, [id]);
       if (dbRes.rowCount === 0) {
         throw new Error(`Post with id=${id} is not found`);
       }
@@ -70,22 +148,6 @@ const root = {
 
     try {
       const dbRes = await query(allPostsQuery);
-      return dbRes.rows.map(getPostFromDbResult);
-    } catch (err) {
-      console.error(err.stack);
-      throw err;
-    }
-  },
-  // returns "numOfPosts" number of posts starting from "startFrom"
-  async getPaginatedPosts({ numOfPosts, startFrom }) {
-    const postsQuery = `SELECT 
-      posts.id, posts.title, posts.text, posts.date, posts.author_id, authors.name 
-      FROM posts 
-      INNER JOIN authors ON authors.id=posts.author_id 
-      LIMIT $1 OFFSET $2`;
-
-    try {
-      const dbRes = await query(postsQuery, [numOfPosts, startFrom]);
       return dbRes.rows.map(getPostFromDbResult);
     } catch (err) {
       console.error(err.stack);

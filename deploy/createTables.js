@@ -8,7 +8,8 @@ const createPostsQuery = `CREATE TABLE posts(
   title varchar(20),
   text varchar(500),
   author_id varchar(20),
-  date date);`;
+  date date,
+  cursor serial);`;
 const createAuthorsQuery = `CREATE TABLE authors(
   id varchar(20) PRIMARY KEY,
   name varchar(60));`;
