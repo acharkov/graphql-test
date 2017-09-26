@@ -3,6 +3,13 @@ import crypto from 'crypto';
 import query from './db';
 import getPostFromDbResult from './post';
 
+function getFields(resolveInfo) {
+  return resolveInfo.fieldNodes[0].selectionSet.selections.reduce((fieldsArray, selection) => {
+    fieldsArray[selection.name.value] = true;
+    return fieldsArray;
+  }, {});
+}
+
 // Construct a schema, using GraphQL schema language
 const schema = buildSchema(`
 input PostInput {
@@ -11,7 +18,7 @@ input PostInput {
   authorId: String
 }
 
-type Post {
+type Post() {
   id: String!
   title: String!
   text: String!
@@ -138,7 +145,9 @@ const root = {
     }
   },
   // returns all posts to client
-  async getAllPosts() {
+  async getAllPosts(source, context, resolveInfo) {
+    const requestedFields = getFields(resolveInfo);
+    console.log(requestedFields);
     const allPostsQuery = `SELECT 
       posts.id, posts.title, posts.text, posts.date, posts.author_id, authors.name
       FROM posts 
