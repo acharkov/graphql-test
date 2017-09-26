@@ -3,8 +3,10 @@ class Post {
     this.id = id;
     this.title = title;
     this.text = text;
-    this.authorId = authorId;
-    this.name = authorName;
+    this.author = {
+      id: authorId,
+      name: authorName
+    };
     this.date = date;
   }
 }
