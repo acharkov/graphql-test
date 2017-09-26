@@ -1,17 +1,13 @@
-import { graphql } from 'graphql';
 import {
   GraphQLSchema,
   GraphQLObjectType,
-  GraphQLID,
   GraphQLString,
-  GraphQLNonNull,
   GraphQLList
 } from 'graphql';
-import query from './db';
 import joinMonster from 'join-monster';
-import getPostFromDbResult from './post';
 import crypto from 'crypto';
-
+import getPostFromDbResult from './post';
+import query from './db';
 
 const Author = new GraphQLObjectType({
   name: 'Author',
@@ -24,10 +20,10 @@ const Author = new GraphQLObjectType({
     },
     name: {
       sqlColumn: 'name',
-      type: GraphQLString 
+      type: GraphQLString
     }
   })
-})
+});
 
 const Post = new GraphQLObjectType({
   name: 'Post',
@@ -48,22 +44,22 @@ const Post = new GraphQLObjectType({
     },
     author: {
       type: new GraphQLList(Author),
-      sqlJoin: (postTable, authorsTable, args) => `${postTable}.author_id = ${authorsTable}.id`
+      sqlJoin: (postTable, authorsTable) => `${postTable}.author_id = ${authorsTable}.id`
     }
   })
-})
+});
 
-let RootQueryType = new GraphQLObjectType({
+const RootQueryType = new GraphQLObjectType({
   name: 'Query',
   fields: {
     getAllAuthors: {
       type: new GraphQLList(Author),
-      resolve: async function () {   
-        const allPostsQuery = `SELECT * from authors;`;
+      async resolve() {
+        const allPostsQuery = 'SELECT * from authors;';
 
         try {
           const dbRes = await query(allPostsQuery);
-          console.log(dbRes.rows)
+          console.log(dbRes.rows);
           return dbRes.rows;
         } catch (err) {
           console.error(err.stack);
@@ -73,9 +69,8 @@ let RootQueryType = new GraphQLObjectType({
     },
     getAllPosts: {
       type: new GraphQLList(Post),
-      resolve: async function (parent, args, context, resolveInfo) {
-
-        return joinMonster(resolveInfo, {}, async sql => {
+      async resolve(parent, args, context, resolveInfo) {
+        return joinMonster(resolveInfo, {}, async (sql) => {
           console.log(sql);
           try {
             const dbRes = await query(sql);
@@ -88,7 +83,7 @@ let RootQueryType = new GraphQLObjectType({
       }
     }
   }
-})
+});
 
 const RootMutationType = new GraphQLObjectType({
   name: 'Mutation',
@@ -100,7 +95,7 @@ const RootMutationType = new GraphQLObjectType({
         text: { type: GraphQLString },
         authorId: { type: GraphQLString }
       },
-      resolve: async function (parent, { title, text, authorId }) {
+      async resolve(parent, { title, text, authorId }) {
         const id = crypto.randomBytes(10).toString('hex');
         const queryText = `INSERT INTO 
         posts(id, title, text, author_id, date) 
@@ -120,10 +115,11 @@ const RootMutationType = new GraphQLObjectType({
       args: {
         id: { type: GraphQLString },
         title: { type: GraphQLString },
-        text: { type: GraphQLString },
-        authorId: { type: GraphQLString }
+        text: { type: GraphQLString }
       },
-      resolve: async function (parent, {id, title, text, authorId }) {
+      async resolve(parent, {
+        id, title, text
+      }) {
         const updateQuery = `UPDATE posts 
         SET title=$1, text=$2 
         WHERE posts.id=$3 RETURNING *`;
@@ -141,11 +137,11 @@ const RootMutationType = new GraphQLObjectType({
       }
     }
   }
-})
+});
 
-var schema = new GraphQLSchema({
+const schema = new GraphQLSchema({
   query: RootQueryType,
   mutation: RootMutationType
 });
 
-export default schema
+export default schema;
