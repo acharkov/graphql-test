@@ -8,7 +8,7 @@ import {
 } from 'graphql';
 import joinMonster from 'join-monster';
 import crypto from 'crypto';
-import getPostFromDbResult from '../post';
+import getPostFromDbResult from '../models/post';
 import query from '../db';
 
 const Author = new GraphQLObjectType({
