@@ -7,6 +7,7 @@ import {
   GraphQLBoolean
 } from 'graphql';
 import joinMonster from 'join-monster';
+import pgFormat from 'pg-format';
 import crypto from 'crypto';
 import getPostFromDbResult from '../post';
 import query from '../db';
@@ -46,8 +47,7 @@ const Post = new GraphQLObjectType({
     },
     author: {
       type: Author,
-      // FOR MAXIM: SQL injection risk: library like sqlstring to be used
-      sqlJoin: (postTable, authorsTable) => `${postTable}.author_id = ${authorsTable}.id`
+      sqlJoin: (postTable, authorsTable) => pgFormat(`${postTable}.author_id = ${authorsTable}.id`)
     }
   })
 });
@@ -191,9 +191,7 @@ const RootQueryType = new GraphQLObjectType({
       args: {
         id: { type: GraphQLString }
       },
-      // FOR MAXIM: SQL injection risk. Library like sqlstring to be used
-      where: (PostTable, args) =>
-        `${PostTable}.id = '${args.id}'`,
+      where: (PostTable, args) => pgFormat(`${PostTable}.id = %L`, args.id),
       async resolve(parent, args, context, resolveInfo) {
         return joinMonster(resolveInfo, {}, async (sql) => {
           console.log(sql);
