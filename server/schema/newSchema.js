@@ -9,7 +9,7 @@ import {
 import joinMonster from 'join-monster';
 import pgFormat from 'pg-format';
 import crypto from 'crypto';
-import getPostFromDbResult from '../post';
+import getPostFromDbResult from '../models/post';
 import query from '../db';
 
 const Author = new GraphQLObjectType({
